@@ -61,6 +61,7 @@ int mainEntryClickHouseCompressor(int argc, char ** argv)
         ("block-size,b", boost::program_options::value<unsigned>()->default_value(DBMS_DEFAULT_BUFFER_SIZE), "compress in blocks of specified size")
         ("hc", "use LZ4HC instead of LZ4")
         ("zstd", "use ZSTD instead of LZ4")
+        ("brotli", "use Brotli instead of LZ4")
         ("level", "compression level")
         ("none", "use no compression instead of LZ4")
         ("stat", "print block statistics of compressed data")
@@ -81,6 +82,7 @@ int mainEntryClickHouseCompressor(int argc, char ** argv)
         bool decompress = options.count("decompress");
         bool use_lz4hc = options.count("hc");
         bool use_zstd = options.count("zstd");
+        bool use_brotli = options.count("brotli");
         bool stat_mode = options.count("stat");
         bool use_none = options.count("none");
         unsigned block_size = options["block-size"].as<unsigned>();
@@ -91,6 +93,8 @@ int mainEntryClickHouseCompressor(int argc, char ** argv)
             method = DB::CompressionMethod::LZ4HC;
         else if (use_zstd)
             method = DB::CompressionMethod::ZSTD;
+        else if (use_brotli)
+            method = DB::CompressionMethod::BROTLI;
         else if (use_none)
             method = DB::CompressionMethod::NONE;
 

@@ -3,6 +3,7 @@
 #include <lz4.h>
 #include <lz4hc.h>
 #include <zstd.h>
+#include <brotli/encode.h>
 #include <string.h>
 
 #include <common/unaligned.h>
@@ -89,6 +90,37 @@ void CompressedWriteBuffer::nextImpl()
                 throw Exception("Cannot compress block with ZSTD: " + std::string(ZSTD_getErrorName(res)), ErrorCodes::CANNOT_COMPRESS);
 
             compressed_size = header_size + res;
+
+            UInt32 compressed_size_32 = compressed_size;
+            UInt32 uncompressed_size_32 = uncompressed_size;
+
+            unalignedStore(&compressed_buffer[1], compressed_size_32);
+            unalignedStore(&compressed_buffer[5], uncompressed_size_32);
+
+            compressed_buffer_ptr = &compressed_buffer[0];
+            break;
+        }
+        case CompressionMethod::BROTLI:
+        {
+            static constexpr size_t header_size = 1 + sizeof(UInt32) + sizeof(UInt32);
+
+	    compressed_size = BrotliEncoderMaxCompressedSize(uncompressed_size);
+            compressed_buffer.resize(header_size + compressed_size);
+
+            compressed_buffer[0] = static_cast<UInt8>(CompressionMethodByte::BROTLI);
+
+            BROTLI_BOOL res = BrotliEncoderCompress(
+                compression_settings.level,
+                BROTLI_DEFAULT_WINDOW, BROTLI_DEFAULT_MODE,
+                uncompressed_size,
+                (uint8_t*)working_buffer.begin(),
+                &compressed_size,
+                (uint8_t*)(&(compressed_buffer[header_size])));
+
+            if (BROTLI_FALSE == res)
+                throw Exception("Cannot compress block with BROTLI", ErrorCodes::CANNOT_COMPRESS);
+
+            compressed_size += header_size;
 
             UInt32 compressed_size_32 = compressed_size;
             UInt32 uncompressed_size_32 = uncompressed_size;

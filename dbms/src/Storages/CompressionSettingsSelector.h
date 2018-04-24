@@ -52,6 +52,8 @@ private:
                 return CompressionMethod::LZ4;
             else if (name == "zstd")
                 return CompressionMethod::ZSTD;
+            else if (name == "brotli")
+                return CompressionMethod::BROTLI;
             else if (name == "none")
                 return CompressionMethod::NONE;
             else

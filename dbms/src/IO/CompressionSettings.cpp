@@ -1,6 +1,7 @@
 #include <Interpreters/Settings.h>
 
 #include "CompressionSettings.h"
+#include "brotli/encode.h"
 
 
 namespace DB
@@ -28,6 +29,8 @@ int CompressionSettings::getDefaultLevel(CompressionMethod method)
         case CompressionMethod::LZ4HC:
             return 0;
         case CompressionMethod::ZSTD:
+            return 1;
+        case CompressionMethod::BROTLI:
             return 1;
         default:
             return -1;

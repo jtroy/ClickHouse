@@ -6,6 +6,7 @@
 #include <city.h>
 #include <lz4.h>
 #include <zstd.h>
+#include <brotli/decode.h>
 
 #include <Common/PODArray.h>
 #include <Common/ProfileEvents.h>
@@ -55,6 +56,7 @@ size_t CompressedReadBufferBase::readCompressedData(size_t & size_decompressed, 
 
     if (method == static_cast<UInt8>(CompressionMethodByte::LZ4) ||
         method == static_cast<UInt8>(CompressionMethodByte::ZSTD) ||
+        method == static_cast<UInt8>(CompressionMethodByte::BROTLI) ||
         method == static_cast<UInt8>(CompressionMethodByte::NONE))
     {
         size_compressed = unalignedLoad<UInt32>(&own_compressed_buffer[1]);
@@ -110,6 +112,16 @@ void CompressedReadBufferBase::decompress(char * to, size_t size_decompressed, s
 
         if (ZSTD_isError(res))
             throw Exception("Cannot ZSTD_decompress: " + std::string(ZSTD_getErrorName(res)), ErrorCodes::CANNOT_DECOMPRESS);
+    }
+    else if (method == static_cast<UInt8>(CompressionMethodByte::BROTLI))
+    {
+	BrotliDecoderResult res = BrotliDecoderDecompress(
+	    size_compressed_without_checksum,
+	    (uint8_t*)compressed_buffer + COMPRESSED_BLOCK_HEADER_SIZE,
+	    &size_decompressed,
+	    (uint8_t*)to);
+	if (BROTLI_DECODER_RESULT_SUCCESS != res)
+            throw Exception("Cannot BrotliDecoderDecompress", ErrorCodes::CANNOT_DECOMPRESS);
     }
     else if (method == static_cast<UInt8>(CompressionMethodByte::NONE))
     {

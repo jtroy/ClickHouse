@@ -18,7 +18,8 @@ enum class CompressionMethod
     LZ4 = 1,
     LZ4HC = 2,        /// The format is the same as for LZ4. The difference is only in compression.
     ZSTD = 3,         /// Experimental algorithm: https://github.com/Cyan4973/zstd
-    NONE = 4,         /// No compression
+    BROTLI = 4,       /// Google's Brotli compression
+    NONE = 5,         /// No compression
 };
 
 /** The compressed block format is as follows:
@@ -47,6 +48,7 @@ enum class CompressionMethodByte : uint8_t
     NONE     = 0x02,
     LZ4      = 0x82,
     ZSTD     = 0x90,
+    BROTLI   = 0xA0,
 };
 
 }

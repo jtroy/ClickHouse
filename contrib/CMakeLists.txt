@@ -14,6 +14,10 @@ if (USE_INTERNAL_ZSTD_LIBRARY)
     add_subdirectory (zstd-cmake)
 endif ()
 
+if (USE_INTERNAL_BROTLI_LIBRARY)
+    add_subdirectory (brotli-cmake)
+endif ()
+
 if (USE_INTERNAL_RE2_LIBRARY)
     set(RE2_BUILD_TESTING 0 CACHE INTERNAL "")
     add_subdirectory (re2)

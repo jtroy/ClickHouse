@@ -556,15 +556,17 @@ struct SettingCompressionMethod
             return CompressionMethod::LZ4HC;
         if (s == "zstd")
             return CompressionMethod::ZSTD;
+        if (s == "brotli")
+            return CompressionMethod::BROTLI;
 
-        throw Exception("Unknown compression method: '" + s + "', must be one of 'lz4', 'lz4hc', 'zstd'", ErrorCodes::UNKNOWN_COMPRESSION_METHOD);
+        throw Exception("Unknown compression method: '" + s + "', must be one of 'lz4', 'lz4hc', 'zstd', 'brotli'", ErrorCodes::UNKNOWN_COMPRESSION_METHOD);
     }
 
     String toString() const
     {
-        const char * strings[] = { nullptr, "lz4", "lz4hc", "zstd" };
+        const char * strings[] = { nullptr, "lz4", "lz4hc", "zstd", "brotli" };
 
-        if (value < CompressionMethod::LZ4 || value > CompressionMethod::ZSTD)
+        if (value < CompressionMethod::LZ4 || value > CompressionMethod::BROTLI)
             throw Exception("Unknown compression method", ErrorCodes::UNKNOWN_COMPRESSION_METHOD);
 
         return strings[static_cast<size_t>(value)];

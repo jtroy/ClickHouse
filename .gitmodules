@@ -34,3 +34,6 @@
 [submodule "contrib/boost"]
 	path = contrib/boost
 	url = https://github.com/ClickHouse-Extras/boost.git
+[submodule "contrib/brotli"]
+	path = contrib/brotli
+	url = https://github.com/google/brotli.git
